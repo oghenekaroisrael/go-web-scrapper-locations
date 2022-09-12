@@ -107,8 +107,8 @@ func Crawl_The_State(url string, name string) []StateItem {
 	// Crawl A State
 	c.OnHTML("div#primary div.entry-content", func(h *colly.HTMLElement) {
 		// State Details
-		var name = h.ChildText("h1.entry-title")
-		fmt.Println(name)
+		var sname = h.ChildText("h1.entry-title")
+		fmt.Println(sname)
 		this_state.StateName = name
 		lgas := make([]lgaItem, 0)
 
@@ -131,21 +131,13 @@ func Crawl_The_State(url string, name string) []StateItem {
 	})
 
 	c.Visit(url)
-	content, err := json.Marshal(states)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	os.WriteFile("states.json", content, 0644)
 	return states
 }
 
 // Crawls  a country to get states
-func Crawl_By_Country(url string, name string) []CountryItem {
+func Crawl_The_Country(url string, name string) []CountryItem {
 
 	countries := make([]CountryItem, 0)
-
-	country := CountryItem{}
 
 	// Instantiate default collector
 	c := colly.NewCollector(
@@ -157,24 +149,31 @@ func Crawl_By_Country(url string, name string) []CountryItem {
 	c.AllowURLRevisit = false
 
 	// Crawl A State
-	c.OnHTML("div#primary div.entry-content", func(h *colly.HTMLElement) {
+	c.OnHTML("div#primary div.entry-content div#pg-22-3", func(h *colly.HTMLElement) {
 		// State Details
-		country.CountryName = "Nigeria"
-		h.ForEach("div.corp-content-wrapper div.entry-content ul li", func(i int, h *colly.HTMLElement) {
+		country := make([]CountryItem, 0)
+		h.ForEach("ul li", func(i int, h *colly.HTMLElement) {
 			var stateName = h.ChildText("a")
 			link := h.ChildAttr("a", "href")
 			s := CountryItem{}
 			s.States = Crawl_The_State(link, stateName)
-			// country.
+			s.CountryName = name
+			country = append(country, s)
 		})
-		// countries = append(countries, s)
+		countries = append(countries, country...)
 	})
 
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
-		// fmt.Println("Visiting LGA : ", r.URL.String())
+		fmt.Println("Visiting Country : ", r.URL.String())
 	})
 
 	c.Visit(url)
+	content, err := json.Marshal(countries)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	os.WriteFile("locations_in_"+name+".json", content, 0644)
 	return countries
 }
