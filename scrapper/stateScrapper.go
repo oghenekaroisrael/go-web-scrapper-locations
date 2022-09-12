@@ -8,14 +8,14 @@ import (
 	"github.com/gocolly/colly"
 )
 
-type state struct {
+type stateq struct {
 	Name string `json:"name"`
 	Link string `json:"link"`
 }
 
 func StateScrapper() {
 	count := 0
-	states := make([]state, 0)
+	states := make([]stateq, 0)
 	// allLocations := make([]locationItem, 0)
 	c := colly.NewCollector(
 		colly.AllowedDomains("postcode.com.ng", "www.postcode.com.ng"),
@@ -42,7 +42,7 @@ func StateScrapper() {
 		var astate = h.Text
 		link := h.Attr("href")
 		h.Request.Ctx.Put("state", astate)
-		s := state{
+		s := stateq{
 			Name: astate,
 			Link: link,
 		}

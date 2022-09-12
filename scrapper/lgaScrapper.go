@@ -8,6 +8,10 @@ import (
 	"github.com/gocolly/colly"
 )
 
+type state struct {
+	Name string `json:"name"`
+	Link string `json:"link"`
+}
 type local struct {
 	Name     string `json:"name"`
 	PostCode string `json:"post_code"`
@@ -16,6 +20,13 @@ type local struct {
 type State struct {
 	Name string `json:"name"`
 	Link string `json:"link"`
+}
+
+type StateItem struct {
+	CountryName string  `json:"countryName"`
+	StateName   string  `json:"stateName"`
+	LGA         []lga   `json:"lga"`
+	Places      []local `json:"places"`
 }
 
 type lga struct {
@@ -37,8 +48,13 @@ type locationItem struct {
 func LgaScrapper() {
 	// count := 0
 
+	states := make([]state, 0)
+
 	lgas := make([]lga, 0)
+
 	streets := make([]local, 0)
+
+	countries := make([]string, 0)
 
 	// // Open our jsonFile
 	// jsonFile, err := os.Open("../states.json")
@@ -122,6 +138,20 @@ func LgaScrapper() {
 	)
 
 	// State
+	c.OnHTML("div#pg-22-3 div.siteorigin-widget-tinymce ul li", func(h *colly.HTMLElement) {
+		var astate = h.ChildText("a")
+		link := h.ChildAttr("a", "href")
+		s := state{
+			Name: astate,
+			Link: link,
+		}
+		countries = append(countries, "Nigeria")
+		states = append(states, s)
+		fmt.Println(s)
+		c.Visit(h.Request.AbsoluteURL(link))
+	})
+
+	// LGA
 	c.OnHTML("div#content div.corp-content-wrapper div.entry-content ul li", func(h *colly.HTMLElement) {
 		var alga = h.ChildText("a")
 		link := h.ChildAttr("a", "href")
@@ -134,9 +164,10 @@ func LgaScrapper() {
 		c.Visit(h.Request.AbsoluteURL(link))
 	})
 
+	// Street and PostCode
 	c.OnHTML("div#content div.corp-content-wrapper div.entry-content table.wp-block-table tbody tr", func(h *colly.HTMLElement) {
-		var street = h.ChildText("tr:first-child")
-		var postcode = h.ChildText("tr:last-child")
+		var street = h.ChildText("td:first-child")
+		var postcode = h.ChildText("td:last-child")
 
 		s := local{
 			Name:     street,
@@ -155,13 +186,20 @@ func LgaScrapper() {
 	// 	fmt.Println("Finished Scraping :", lgas)
 	// })
 
-	c.Visit("http://www.postcode.com.ng/abia-state-lga-nigeria-postcode/")
+	c.Visit("https://www.postcode.com.ng/")
 	c.Wait()
 
-	content, err := json.Marshal(streets)
+	l := locationItem{
+		Lga:       lgas,
+		States:    states,
+		Countries: countries,
+		Location:  streets,
+	}
+
+	content, err := json.Marshal(l)
 
 	if err != nil {
 		fmt.Println(err)
 	}
-	os.WriteFile("streetData.json", content, 0644)
+	os.WriteFile("abia.json", content, 0644)
 }
