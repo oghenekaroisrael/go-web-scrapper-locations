@@ -4,5 +4,5 @@ import "github.com/oghenekaroisrael/go-web-scrapper-locations/scrapper"
 
 func main() {
 	// scrapper.StateScrapper()
-	scrapper.LgaScrapper()
+	scrapper.Crawl_The_State("http://postcode.com.ng/abia-state-lga-nigeria-postcode/", "Abia")
 }

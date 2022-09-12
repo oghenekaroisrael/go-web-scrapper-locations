@@ -17,17 +17,10 @@ type local struct {
 	PostCode string `json:"post_code"`
 }
 
-type State struct {
-	Name string `json:"name"`
-	Link string `json:"link"`
-}
-
-type StateItem struct {
-	CountryName string  `json:"countryName"`
-	StateName   string  `json:"stateName"`
-	LGA         []lga   `json:"lga"`
-	Places      []local `json:"places"`
-}
+// type State struct {
+// 	Name string `json:"name"`
+// 	Link string `json:"link"`
+// }
 
 type lga struct {
 	Name string `json:"name"`
