@@ -1,4 +1,4 @@
-module go-web-scrapper-locations
+module github.com/oghenekaroisrael/go-web-scrapper-locations
 
 go 1.18
 

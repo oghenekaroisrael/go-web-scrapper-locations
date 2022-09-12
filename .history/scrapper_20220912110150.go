@@ -8,7 +8,7 @@ import (
 	"github.com/gocolly/colly"
 )
 
-type locationItem struct {
+type locationItem2 struct {
 	Location string `json:"location"`
 	Lga      string `json:"lga"`
 	PostCode string `json:"post_code"`
@@ -16,8 +16,8 @@ type locationItem struct {
 	Country  string `json:"country"`
 }
 
-func mainw() {
-	allLocations := make([]locationItem, 0)
+func mains() {
+	allLocations := make([]locationItem2, 0)
 	c := colly.NewCollector(
 		colly.AllowedDomains("nigeriazipcodes.com"),
 	)
@@ -43,7 +43,7 @@ func mainw() {
 						h.ForEach("table tbody tr", func(i int, h *colly.HTMLElement) {
 							var locs = h.ChildText("td:first-child")
 							var pc = h.ChildText("td:last-child")
-							loc := locationItem{
+							loc := locationItem2{
 								State:    state,
 								Lga:      lga,
 								PostCode: pc,
